@@ -17,11 +17,14 @@ You should have received a copy of the GNU General Public License
 along with GAS; see the file COPYING.  If not, write to
 the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.  */
 
+#include <stdarg.h>
+#include <string.h>
 #include <stdio.h>		/* define stderr */
 #ifdef	VMS
-#include <errno.h>	/* Need this to make errno declaration right */
 #include <perror.h>	/* Need this to make sys_errlist/sys_nerr right */
 #endif /* VMS */
+
+#include <errno.h>	/* Need this to make errno declaration right */
 
 #include "as.h"
 
@@ -66,23 +69,18 @@ int bad_error = 0;
  * Like perror(3), but with more info.
  */
 /* JF moved from input-scrub.c to here.  */
+
 void
 as_perror(gripe, filename)
      char *	gripe;		/* Unpunctuated error theme. */
      char *	filename;
 {
-  extern int errno;		/* See perror(3) for details. */
-  extern int sys_nerr;
-  extern char * sys_errlist[];
-
   as_where();
-  fprintf (stderr,gripe,filename);
-  if (errno > sys_nerr)
-    fprintf (stderr, "Unknown error #%d.\n", errno);
-  else
-    fprintf (stderr, "%s.\n", sys_errlist [errno]);
+  fprintf (stderr, gripe, filename);
+  fprintf (stderr, ": %s\n", strerror(errno));
   errno = 0;			/* After reporting, clear it. */
 }
+
 
 /*
  *			a s _ w a r n ( )
@@ -93,37 +91,17 @@ as_perror(gripe, filename)
  * Please explain in string (which may have '\n's) what recovery was done.
  */
 
-#ifdef NO_VARARGS
-/*VARARGS1*/
-as_warn(Format,args)
-char *Format;
-{
-  if ( ! flagseen ['W'])	/* -W supresses warning messages. */
-    {
-      as_where();
-      _doprnt (Format, &args, stderr);
-      (void)putc ('\n', stderr);
-      /* as_where(); */
-    }
-}
-#else
-void
-as_warn(Format,va_alist)
-char *Format;
-va_dcl
+void as_warn(const char *format, ...)
 {
   va_list args;
 
-  if( ! flagseen['W'])
-    {
-      as_where();
-      va_start(args);
-      vfprintf(stderr, Format, args);
-      va_end(args);
-      (void) putc('\n', stderr);
-    }
+  as_where();
+  va_start(args, format);
+  vfprintf(stderr, format, args);
+  va_end(args);
+  fprintf(stderr, "\n");
 }
-#endif
+
 #ifdef DONTDEF
 void
 as_warn(Format,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an)
@@ -146,33 +124,18 @@ char *format;
  * Please explain in string (which may have '\n's) what recovery was done.
  */
 
-#ifdef NO_VARARGS
-/*VARARGS1*/
-as_bad(Format,args)
-char *Format;
-{
-  bad_error=1;
-  as_where();
-  _doprnt (Format, &args, stderr);
-  (void)putc ('\n', stderr);
-  /* as_where(); */
-}
-#else
-void
-as_bad(Format,va_alist)
-char *Format;
-va_dcl
+void as_bad(const char *format, ...)
 {
   va_list args;
 
-  bad_error=1;
   as_where();
-  va_start(args);
-  vfprintf(stderr, Format, args);
+  va_start(args, format);
+  vfprintf(stderr, format, args);
   va_end(args);
-  (void) putc('\n', stderr);
+  fprintf(stderr, "\n");
+  bad_error = 1;
 }
-#endif
+
 #ifdef DONTDEF
 void
 as_bad(Format,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an)
@@ -193,35 +156,18 @@ char *format;
  * It exit()s with a warning status.
  */
 
-#ifdef NO_VARARGS
-/*VARARGS1*/
-as_fatal (Format, args)
-char *Format;
-{
-  as_where();
-  fprintf(stderr,"FATAL:");
-  _doprnt (Format, &args, stderr);
-  (void)putc ('\n', stderr);
-  /* as_where(); */
-  exit(42);			/* What is a good exit status? */
-}
-#else
-void
-as_fatal(Format,va_alist)
-char *Format;
-va_dcl
+void as_fatal(const char *format, ...)
 {
   va_list args;
 
   as_where();
-  va_start(args);
-  fprintf (stderr, "FATAL:");
-  vfprintf(stderr, Format, args);
-  (void) putc('\n', stderr);
+  va_start(args, format);
+  vfprintf(stderr, format, args);
   va_end(args);
-  exit(42);
+  fprintf(stderr, "\n");
+  exit(42); /* Standard fatal exit status for GAS */
 }
-#endif
+
 #ifdef DONTDEF
 void
 as_fatal(Format,aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an)

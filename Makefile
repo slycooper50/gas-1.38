@@ -124,14 +124,18 @@ G1 = # -DUSE_SYSTEM_HDR
 G2 = # -DUSE_HP_HDR
 G3 = # -DSUN_ASM_SYNTAX
 
+WR1 = -Wno-incompatible-pointer-types
+WR2 = -Wno-pointer-to-int-cast
+WR3 = -Wno-builtin-declaration-mismatch
+
 OPTIONS = $(O1) $(O2) $(O3) $(O4) $(O5) $(O6) $(O7) $(O8) $(O9) $(O10)
 
-CFLAGS = $(G0) $(G1) $(G2) $(G3) $(G4)
+CFLAGS = $(G0) $(G1) $(G2) $(G3) $(G4) -std=gnu89 $(WR1) $(WR2) $(WR3) -fcommon
 
 #
 # To make the 68020 assembler compile as the default, un-comment the next
 # line, and comment out all the other lines that start with DEFAULT_GAS
-DEFAULT_GAS=a68
+#DEFAULT_GAS=a68
 #
 # To make the VAX assembler compile as the default, un-comment the next
 # line and commment out all the other lines that start with DEFAULT_GAS
@@ -139,7 +143,7 @@ DEFAULT_GAS=a68
 #
 # To make the 80386 assembler compile as the default, un-comment the next
 # line and commment out all the other lines that start with DEFAULT_GAS
-#DEFAULT_GAS=a386
+DEFAULT_GAS=a386
 #
 # To make the ns32k assembler compile as the default, un-comment the next
 # line and commment out all the other lines that start with DEFAULT_GAS
