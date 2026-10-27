@@ -130,7 +130,7 @@ WR3 = -Wno-builtin-declaration-mismatch
 
 OPTIONS = $(O1) $(O2) $(O3) $(O4) $(O5) $(O6) $(O7) $(O8) $(O9) $(O10)
 
-CFLAGS = $(G0) $(G1) $(G2) $(G3) $(G4) -std=gnu89 $(WR1) $(WR2) $(WR3) -fcommon
+CFLAGS = $(G0) $(G1) $(G2) $(G3) $(G4) -std=gnu89 $(WR1) $(WR2) $(WR3) -fcommon -m32
 
 #
 # To make the 68020 assembler compile as the default, un-comment the next
@@ -323,6 +323,7 @@ clean:
 	rm -f a avax a68 a386 a32k asparc $a $v $w $x $y $z a core gmon.out bugs a.out
 
 install:	a
+	-mkdir -p $(BINDIR)
 	cp a $(BINDIR)/gas
 
 
